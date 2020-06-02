@@ -4,7 +4,7 @@ import mainhandler
 from locals import *
 
 
-class Commons():
+class Commons:
     def __init__(self, mainh):
         self.main = mainh
 
@@ -48,11 +48,18 @@ class Commons():
         except:
             raise ReferenceError
 
-    def scrool(self, dir):
+    def getscrollable(self):
+        try:
+            return self.scrollable
+        except:
+            return False
+
+    def scroll(self, dir):
         try:
             self.scrool = dir
         except:
             raise ReferenceError
+
     def calculatesize(self, size):
         wsize = self.main.getwindow().get_size()
         x = (wsize[0] * size[0]) / 100
@@ -64,6 +71,11 @@ class Commons():
         x, y = self.calculatesize((x, y))
         rect = rect.move(x, y)
         return rect
+
+
+class Scrollbar(Commons):
+    def __init__(self, rect):
+        self.rect = rect
 
 
 class Button(Commons):
@@ -93,7 +105,7 @@ class Button(Commons):
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
         if not self.absolutepos:
-            self.rect = self.commons.setcorrectrectpos(self.rect,(self.x,self.y))
+            self.rect = self.commons.setcorrectrectpos(self.rect, (self.x, self.y))
         else:
             self.rect = self.rect.move(self.x, self.y)
         if self.ishoovered:
@@ -111,7 +123,7 @@ class Button(Commons):
 
 class TextBox(Commons):
     def __init__(self, x, y, main, color=[(255, 255, 255), (211, 211, 211)], size=(250, 150), editable=False,
-                 absolutepos=False):
+                 absolutepos=False, autoscroll=True):
         self.commons = Commons(main)
         self.rect = pygame.Rect(0, 0, size[0], size[1])
         self.x = x
@@ -131,6 +143,8 @@ class TextBox(Commons):
         if not self.absolutepos:
             if x > 100 or y > 100:
                 raise AttributeError
+        self.scrollable = autoscroll
+        self.scrool = 0
 
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
@@ -148,6 +162,8 @@ class TextBox(Commons):
                 self.window.blit(text,
                                  (self.rect.left,
                                   self.rect.top + text.get_height() * i))
+        if self.scrollable:
+            pass
 
     def listtostring(self, charlist):
         """Transform a list of char into a string"""
@@ -174,7 +190,7 @@ class TextBox(Commons):
 
 
 class BoxElement(Commons):
-    def __init__(self, img, text, main, size=[150, 100],absolutepos=False ):
+    def __init__(self, img, text, main, size=[150, 100], absolutepos=False):
         self.font = mainhandler.mainhandler.getfont(main)
         self.commons = Commons(main)
         self.img = pygame.transform.scale(pygame.image.load(img), size)
@@ -190,7 +206,7 @@ class BoxElement(Commons):
         return self.font.render(text, True, (50, 12, 50))
 
     def move(self, pos):
-        self.rect= pygame.Rect(pos, self.size)
+        self.rect = pygame.Rect(pos, self.size)
 
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
@@ -203,12 +219,10 @@ class BoxElement(Commons):
         self.window.blit(self.rendertext(self.text), self.rect)
 
 
-
-
-
 class ObjectListBox(TextBox):
-    def __init__(self, x, y, main):
-        self.textbox = TextBox(x, y, main)
+    def __init__(self, x, y, main, size=[500, 300]):
+        self.textbox = TextBox(x, y, main, size=size)
+        self.size = size
         self.listshow = self.textbox.show
         self.objlist = []
         self.x = x
@@ -219,4 +233,6 @@ class ObjectListBox(TextBox):
         height = 0
         for obj in self.objlist:
             obj.move(self.x, height)
-            height += obj.getRect()
+            height += obj.getRect().height
+            if height >= self.size[1] and self.textbox.scrollable:
+                self.scrollable = True

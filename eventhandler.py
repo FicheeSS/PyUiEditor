@@ -34,16 +34,20 @@ class OnScroll():
 class EventHandler(OnClick, OnHover):
     def __init__(self, objectlist):
         self.objectlist = objectlist
+        self.clickhandler
+        self.hooverhandler
+        self.updateobj()
+
+    def updateobj(self):
         clickableObj = []
         hooverobj = []
-        if len(objectlist) != 0:
-            for obj in objectlist:
-                if obj.getclickable():
-                    clickableObj.append(obj)
-                if obj.gethooverable:
-                    hooverobj.append(obj)
-        else:
-            raise GeneratorExit
+        for obj in self.objectlist:
+            if obj.getclickable():
+                clickableObj.append(obj)
+            if obj.gethooverable:
+                hooverobj.append(obj)
+            if obj.getscrollable:
+                hooverobj.append(obj)
         self.clickhandler = OnClick(clickableObj)
         self.hooverhandler = OnHover(hooverobj)
 
