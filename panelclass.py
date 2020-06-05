@@ -2,6 +2,7 @@ import pygame
 
 import mainhandler
 from locals import *
+from component import *
 
 
 class Commons:
@@ -73,9 +74,7 @@ class Commons:
         return rect
 
 
-class Scrollbar(Commons):
-    def __init__(self, rect):
-        self.rect = rect
+
 
 
 class Button(Commons):
@@ -144,7 +143,7 @@ class TextBox(Commons):
             if x > 100 or y > 100:
                 raise AttributeError
         self.scrollable = autoscroll
-        self.scrool = 0
+        self.scrooler = Scrollbar(self.rect, self.window)
 
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
@@ -220,13 +219,15 @@ class BoxElement(Commons):
 
 
 class ObjectListBox(TextBox):
-    def __init__(self, x, y, main, size=[500, 300]):
-        self.textbox = TextBox(x, y, main, size=size)
+    def __init__(self, x, y, main, size=[500, 300], scrollable=True):
+        self.textbox = TextBox(x, y, main, size=size, autoscroll=scrollable)
         self.size = size
         self.listshow = self.textbox.show
         self.objlist = []
         self.x = x
         self.y = y
+        self.scrollable = scrollable
+        self.scroller = self.textbox.scrooler
 
     def show(self):
         self.textbox.show()
@@ -234,5 +235,10 @@ class ObjectListBox(TextBox):
         for obj in self.objlist:
             obj.move(self.x, height)
             height += obj.getRect().height
-            if height >= self.size[1] and self.textbox.scrollable:
-                self.scrollable = True
+            if height >= self.size[1] :
+                    if self.textbox.scrollable:
+                        self.scrollable = True
+                    else:
+                        raise AttributeError
+            if self.scrollable :
+                self.scrooler.show()

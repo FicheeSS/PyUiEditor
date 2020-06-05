@@ -34,8 +34,8 @@ class OnScroll():
 class EventHandler(OnClick, OnHover):
     def __init__(self, objectlist):
         self.objectlist = objectlist
-        self.clickhandler
-        self.hooverhandler
+        self.clickhandler = None
+        self.hooverhandler = None
         self.updateobj()
 
     def updateobj(self):
