@@ -10,8 +10,7 @@ from mainhandler import mainhandler
 pygame.init()
 infoObject = pygame.display.Info()
 # window = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
-window = pygame.display.set_mode((800, 600),HWSURFACE | DOUBLEBUF | RESIZABLE)
-
+window = pygame.display.set_mode((800, 600), HWSURFACE | DOUBLEBUF | RESIZABLE)
 
 
 if pygame.font.get_init():
@@ -20,6 +19,7 @@ running = True
 objlist = []
 mainh = mainhandler(window, font)
 maintextarea = pnlc.TextBox(15, 20, mainh, size=(350, 150))
+objlist.append(pnlc.Box(10, 10,mainh, size=(500, 500)))
 objlist.append(
     pnlc.Button(30, 50, mainh, text="Button", onclickcallback=maintextarea.addtext, callbackparameter="Non"))
 objlist.append(

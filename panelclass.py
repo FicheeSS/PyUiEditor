@@ -50,31 +50,32 @@ class Commons:
             raise ReferenceError
 
     def getscrollable(self):
+        """Try to get the obj scrollability"""
         try:
             return self.scrollable
         except:
             return False
 
     def scroll(self, dir):
+        """Set the scroll direction"""
         try:
             self.scrool = dir
         except:
             raise ReferenceError
 
     def calculatesize(self, size):
+        """Calculate real size of the obj"""
         wsize = self.main.getwindow().get_size()
         x = (wsize[0] * size[0]) / 100
         y = (wsize[1] * size[1]) / 100
         return x, y
 
     def setcorrectrectpos(self, rect, pos):
+        """Move the rect in the new corrected position """
         x, y = pos
         x, y = self.calculatesize((x, y))
         rect = rect.move(x, y)
         return rect
-
-
-
 
 
 class Button(Commons):
@@ -120,10 +121,39 @@ class Button(Commons):
                               self.rect.top + self.text.get_height() + self.rect.height // 4))
 
 
-class TextBox(Commons):
-    def __init__(self, x, y, main, color=[(255, 255, 255), (211, 211, 211)], size=(250, 150), editable=False,
+class Box(Commons):
+    def __init__(self, x, y, main, colorborder=[200,200,200], size=(250, 150),
                  absolutepos=False, autoscroll=True):
         self.commons = Commons(main)
+        self.rect = pygame.Rect(0, 0, size[0], size[1])
+        self.x = x
+        self.y = y
+        self.window = mainhandler.mainhandler.getwindow(main)
+        self.bordercolor = colorborder
+        self.absolutepos = absolutepos
+        if not self.absolutepos:
+            if x > 100 or y > 100:
+                raise AttributeError
+        self.scrollable = autoscroll
+
+    def show(self):
+        self.rect = self.rect.move(-self.rect.left, -self.rect.top)
+        if not self.absolutepos:
+            self.rect = self.commons.setcorrectrectpos(self.rect, (self.x, self.y))
+        else:
+            self.rect = self.rect.move(self.x, self.y)
+        #draw a rectangle following the box border
+        pygame.draw.line(self.window,self.bordercolor,(self.rect.left,self.rect.top),(self.rect.left,self.rect.bottom),2)
+        pygame.draw.line(self.window, self.bordercolor, (self.rect.left,self.rect.bottom),(self.rect.right,self.rect.bottomleft), 2)
+        pygame.draw.line(self.window, self.bordercolor, (self.rect.right,self.rect.bottom),(self.rect.right,self.rect.top), 2)
+        pygame.draw.line(self.window, self.bordercolor, (self.rect.right,self.rect.top),(self.rect.left,self.rect.top), 2)
+
+
+
+class TextBox(Box):
+    def __init__(self, x, y, main, color=[(255, 255, 255), (211, 211, 211)], size=(250, 150), editable=False,
+                 absolutepos=False, autoscroll=True):
+        self.box =Box(x, y, main, size=size, absolutepos=absolutepos, autoscroll=autoscroll)
         self.rect = pygame.Rect(0, 0, size[0], size[1])
         self.x = x
         self.y = y
@@ -148,7 +178,7 @@ class TextBox(Commons):
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
         if not self.absolutepos:
-            self.rect = self.commons.setcorrectrectpos(self.rect, (self.x, self.y))
+            self.rect = self.box.commons.setcorrectrectpos(self.rect, (self.x, self.y))
         else:
             self.rect = self.rect.move(self.x, self.y)
         if self.editable:
@@ -235,10 +265,10 @@ class ObjectListBox(TextBox):
         for obj in self.objlist:
             obj.move(self.x, height)
             height += obj.getRect().height
-            if height >= self.size[1] :
-                    if self.textbox.scrollable:
-                        self.scrollable = True
-                    else:
-                        raise AttributeError
-            if self.scrollable :
+            if height >= self.size[1]:
+                if self.textbox.scrollable:
+                    self.scrollable = True
+                else:
+                    raise AttributeError
+            if self.scrollable:
                 self.scrooler.show()
