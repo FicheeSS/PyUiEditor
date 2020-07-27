@@ -142,12 +142,11 @@ class Box(Commons):
             self.rect = self.commons.setcorrectrectpos(self.rect, (self.x, self.y))
         else:
             self.rect = self.rect.move(self.x, self.y)
-        #draw a rectangle following the box border
+    #draw a rectangle following the box border
         pygame.draw.line(self.window,self.bordercolor,(self.rect.left,self.rect.top),(self.rect.left,self.rect.bottom),2)
-        pygame.draw.line(self.window, self.bordercolor, (self.rect.left,self.rect.bottom),(self.rect.right,self.rect.bottomleft), 2)
+        pygame.draw.line(self.window, self.bordercolor, (self.rect.left,self.rect.bottom),(self.rect.right,self.rect.bottom), 2) 
         pygame.draw.line(self.window, self.bordercolor, (self.rect.right,self.rect.bottom),(self.rect.right,self.rect.top), 2)
         pygame.draw.line(self.window, self.bordercolor, (self.rect.right,self.rect.top),(self.rect.left,self.rect.top), 2)
-
 
 
 class TextBox(Box):
@@ -249,8 +248,8 @@ class BoxElement(Commons):
 
 
 class ObjectListBox(TextBox):
-    def __init__(self, x, y, main, size=[500, 300], scrollable=True):
-        self.textbox = TextBox(x, y, main, size=size, autoscroll=scrollable)
+    def __init__(self, x, y, main, size=[500, 300], scrollable=True,  absolutepos=False):
+        self.textbox = TextBox(x, y, main, size=size, autoscroll=scrollable,  absolutepos=absolutepos)
         self.size = size
         self.listshow = self.textbox.show
         self.objlist = []

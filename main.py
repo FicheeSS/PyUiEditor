@@ -9,22 +9,19 @@ from mainhandler import mainhandler
 
 pygame.init()
 infoObject = pygame.display.Info()
-# window = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
-window = pygame.display.set_mode((800, 600), HWSURFACE | DOUBLEBUF | RESIZABLE)
-
+window = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
+#window = pygame.display.set_mode((800, 600), HWSURFACE | DOUBLEBUF | RESIZABLE)
+def calculuteAbsoluteSize(size):
+    return ((infoObject.current_w * size[0]) / 100,(infoObject.current_w * size[1]) / 100)
 
 if pygame.font.get_init():
     font = pygame.font.Font(pygame.font.get_default_font(), FONTSIZE)
 running = True
 objlist = []
 mainh = mainhandler(window, font)
-maintextarea = pnlc.TextBox(15, 20, mainh, size=(350, 150))
-objlist.append(pnlc.Box(10, 10,mainh, size=(500, 500)))
-objlist.append(
-    pnlc.Button(30, 50, mainh, text="Button", onclickcallback=maintextarea.addtext, callbackparameter="Non"))
-objlist.append(
-    pnlc.Button(50, 50, mainh, text="Button", onclickcallback=maintextarea.addtext, callbackparameter="Oui"))
-objlist.append(maintextarea)
+objlist.append(pnlc.ObjectListBox(0,10,mainh,size=calculuteAbsoluteSize((20,90))))
+objlist.append(pnlc.ObjectListBox(80,10,mainh,size=calculuteAbsoluteSize((20,90))))
+objlist.append(pnlc.ObjectListBox(0,0,mainh,size=calculuteAbsoluteSize((100,10))))
 
 eventhandler = EventHandler(objlist)
 
