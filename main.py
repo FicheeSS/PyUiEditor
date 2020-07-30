@@ -6,6 +6,7 @@ import panelclass as pnlc
 from eventhandler import EventHandler
 from locals import *
 from mainhandler import mainhandler
+import glob
 
 pygame.init()
 infoObject = pygame.display.Info()
@@ -20,10 +21,15 @@ running = True
 objlist = []
 mainh = mainhandler(window, font)
 objlist.append(pnlc.ObjectListBox(0,10,mainh,size=calculuteAbsoluteSize((20,90))))
-objlist.append(pnlc.ObjectListBox(80,10,mainh,size=calculuteAbsoluteSize((20,90))))
-objlist.append(pnlc.ObjectListBox(0,0,mainh,size=calculuteAbsoluteSize((100,10))))
+selectorArea =pnlc.ObjectListBox(80,10,mainh,size=calculuteAbsoluteSize((20,90)))
+objlist.append(selectorArea)
+objlist.append(pnlc.ObjectListBox(0,0,mainh,size=calculuteAbsoluteSize((100,5))))
+
+for img in glob.glob("./img/*.png"):
+    selectorArea.addImg(img, "text")
 
 eventhandler = EventHandler(objlist)
+
 
 
 def showmousepos(pos):

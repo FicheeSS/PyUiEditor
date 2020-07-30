@@ -135,6 +135,8 @@ class Box(Commons):
             if x > 100 or y > 100:
                 raise AttributeError
         self.scrollable = autoscroll
+        if self.scrollable:
+            self.scrooler = Scrollbar(self.rect, self.window)
 
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
@@ -172,7 +174,8 @@ class TextBox(Box):
             if x > 100 or y > 100:
                 raise AttributeError
         self.scrollable = autoscroll
-        self.scrooler = Scrollbar(self.rect, self.window)
+        if self.scrollable : 
+            self.scrooler = Scrollbar(self.rect, self.window)
 
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
@@ -218,10 +221,10 @@ class TextBox(Box):
 
 
 class BoxElement(Commons):
-    def __init__(self, img, text, main, size=[150, 100], absolutepos=False):
+    def __init__(self, imgPath, text, main, size=[150, 100], absolutepos=False):
         self.font = mainhandler.mainhandler.getfont(main)
         self.commons = Commons(main)
-        self.img = pygame.transform.scale(pygame.image.load(img), size)
+        self.img = pygame.transform.scale(pygame.image.load(imgPath), size)
         self.text = text
         self.absolutepos = absolutepos
         self.window = mainhandler.mainhandler.getwindow(main)
@@ -247,27 +250,34 @@ class BoxElement(Commons):
         self.window.blit(self.rendertext(self.text), self.rect)
 
 
-class ObjectListBox(TextBox):
+class ObjectListBox(Box):
     def __init__(self, x, y, main, size=[500, 300], scrollable=True,  absolutepos=False):
-        self.textbox = TextBox(x, y, main, size=size, autoscroll=scrollable,  absolutepos=absolutepos)
+        self.box = Box(x, y, main, size=size, autoscroll=scrollable,  absolutepos=absolutepos)
+        self.rect = self.box.rect 
         self.size = size
-        self.listshow = self.textbox.show
+        self.main = main
         self.objlist = []
         self.x = x
         self.y = y
+        if scrollable : 
+            self.scroller = self.box.scrooler
         self.scrollable = scrollable
-        self.scroller = self.textbox.scrooler
+        self.absolutepos = absolutepos
 
+
+    def addImg(self, imgPath, text):
+        self.objlist.append(BoxElement(imgPath, text, self.main, absolutepos=self.absolutepos))
+        
     def show(self):
-        self.textbox.show()
+        self.box.show()
         height = 0
         for obj in self.objlist:
-            obj.move(self.x, height)
+            obj.move((self.x, height))
             height += obj.getRect().height
             if height >= self.size[1]:
-                if self.textbox.scrollable:
+                if self.box.scrollable:
                     self.scrollable = True
                 else:
                     raise AttributeError
-            if self.scrollable:
+            if self.scrollable and height > self.size[1]:
                 self.scrooler.show()
