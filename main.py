@@ -5,8 +5,8 @@ import sys
 import panelclass as pnlc
 from eventhandler import EventHandler
 from locals import *
-from mainhandler import mainhandler
 import glob
+from layout import Layout
 
 pygame.init()
 infoObject = pygame.display.Info()
@@ -15,21 +15,24 @@ window = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
 def calculuteAbsoluteSize(size):
     return ((infoObject.current_w * size[0]) / 100,(infoObject.current_w * size[1]) / 100)
 
-if pygame.font.get_init():
-    font = pygame.font.Font(pygame.font.get_default_font(), FONTSIZE)
+
 running = True
 objlist = []
-mainh = mainhandler(window, font)
-objlist.append(pnlc.ObjectListBox(0,10,mainh,size=calculuteAbsoluteSize((20,90))))
-selectorArea =pnlc.ObjectListBox(80,10,mainh,size=calculuteAbsoluteSize((20,90)))
+layout = Layout(UPLEFT,window)
+objlist.append(pnlc.ObjectListBox(0,10,layout,size=calculuteAbsoluteSize((20,90))))
+selectorArea = pnlc.ObjectListBox(80,10,layout,size=calculuteAbsoluteSize((20,90)))
 objlist.append(selectorArea)
-objlist.append(pnlc.ObjectListBox(0,0,mainh,size=calculuteAbsoluteSize((100,5))))
+objlist.append(pnlc.ObjectListBox(0,0,layout,size=calculuteAbsoluteSize((100,5))))
 
 for img in glob.glob("./img/*.png"):
     selectorArea.addImg(img, "text")
 
-eventhandler = EventHandler(objlist)
+print(selectorArea is objlist[1])
+print(selectorArea.getobjlist() == objlist[1].getobjlist())
 
+eventhandler = EventHandler(objlist)
+if pygame.font.get_init():
+    font = pygame.font.Font(pygame.font.get_default_font(), FONTSIZE)
 
 
 def showmousepos(pos):

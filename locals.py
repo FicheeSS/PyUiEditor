@@ -1,3 +1,16 @@
+import pygame
+
+UP = 1
+DOWN = 2 
+LEFT = 3
+RIGHT = 4
+UPLEFT = 5
+UPRIGHT = 6
+DOWNLEFT = 7
+DOWNRIGHT = 8
+LAYOUTRANGE = [1,8]
+
+DEFAULTFONT = pygame.font.get_default_font()
 THICKNESS = 3
 FONTSIZE = 12
 SCROLLBARWIDTH = 15

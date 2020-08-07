@@ -1,13 +1,14 @@
 import pygame
 
-import mainhandler
+#import mainhandler
 from locals import *
 from component import *
 
 
 class Commons:
-    def __init__(self, mainh):
-        self.main = mainh
+    def __init__(self, layout):
+        self.window = layout.window
+        self.layout = layout 
 
     """Some commons method use by all other class"""
 
@@ -32,6 +33,13 @@ class Commons:
         """Return the pygame.Rect obj from the obj"""
         try:
             return self.rect
+        except:
+            raise ReferenceError
+        
+    def getsize(self):
+        """Try to get the size of the object """
+        try :
+            return self.size
         except:
             raise ReferenceError
 
@@ -65,12 +73,12 @@ class Commons:
 
     def calculatesize(self, size):
         """Calculate real size of the obj"""
-        wsize = self.main.getwindow().get_size()
+        wsize = self.layout.size
         x = (wsize[0] * size[0]) / 100
         y = (wsize[1] * size[1]) / 100
         return x, y
 
-    def setcorrectrectpos(self, rect, pos):
+    def setrectpos(self, rect, pos):
         """Move the rect in the new corrected position """
         x, y = pos
         x, y = self.calculatesize((x, y))
@@ -79,24 +87,24 @@ class Commons:
 
 
 class Button(Commons):
-    def __init__(self, x, y, main, text="", size=(150, 75), clickable=True, color=(255, 255, 255), onclickcallback="",
-                 hooverable=True, callbackparameter="", absolutepos=False):
-        self.main = main
+    def __init__(self, x, y, layout, text="", size=(150, 75), clickable=True, color=(255, 255, 255), onclickcallback="",
+                 hooverable=True, callbackparameter="", absolutepos=False, font=""):
         self.callbackparameter = callbackparameter
-        self.commons = Commons(main)
+        self.commons = Commons(layout)
         self.hooverable = hooverable
         self.ishoovered = False
         self.rect = pygame.Rect(0, 0, size[0], size[1])
-        self.window = mainhandler.mainhandler.getwindow(main)
+        self.window = layout.window
         self.x = x
         self.y = y
         self.color = color
         self.isclickable = clickable and onclickcallback != ""
+        self.font = Font(font).getfont()
         if self.isclickable and onclickcallback != "":
             self.onclickcallback = onclickcallback
         self.astext = text != ""
         if self.astext:
-            self.text = mainhandler.mainhandler.getfont(self.main).render(text, True, (50, 12, 50))
+            self.text = self.font.render(text, True, (50, 12, 50))
         self.absolutepos = absolutepos
         if not self.absolutepos:
             if x > 100 or y > 100:
@@ -105,7 +113,7 @@ class Button(Commons):
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
         if not self.absolutepos:
-            self.rect = self.commons.setcorrectrectpos(self.rect, (self.x, self.y))
+            self.rect = self.commons.setrectpos(self.rect, (self.x, self.y))
         else:
             self.rect = self.rect.move(self.x, self.y)
         if self.ishoovered:
@@ -122,13 +130,13 @@ class Button(Commons):
 
 
 class Box(Commons):
-    def __init__(self, x, y, main, colorborder=[200,200,200], size=(250, 150),
+    def __init__(self, x, y, layout, colorborder=[200,200,200], size=(250, 150),
                  absolutepos=False, autoscroll=True):
-        self.commons = Commons(main)
+        self.commons = Commons(layout)
         self.rect = pygame.Rect(0, 0, size[0], size[1])
         self.x = x
         self.y = y
-        self.window = mainhandler.mainhandler.getwindow(main)
+        self.window = layout.window
         self.bordercolor = colorborder
         self.absolutepos = absolutepos
         if not self.absolutepos:
@@ -141,7 +149,7 @@ class Box(Commons):
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
         if not self.absolutepos:
-            self.rect = self.commons.setcorrectrectpos(self.rect, (self.x, self.y))
+            self.rect = self.commons.setrectpos(self.rect, (self.x, self.y))
         else:
             self.rect = self.rect.move(self.x, self.y)
     #draw a rectangle following the box border
@@ -152,23 +160,23 @@ class Box(Commons):
 
 
 class TextBox(Box):
-    def __init__(self, x, y, main, color=[(255, 255, 255), (211, 211, 211)], size=(250, 150), editable=False,
-                 absolutepos=False, autoscroll=True):
-        self.box =Box(x, y, main, size=size, absolutepos=absolutepos, autoscroll=autoscroll)
+    def __init__(self, x, y, layout, color=[(255, 255, 255), (211, 211, 211)], size=(250, 150), editable=False,
+                 absolutepos=False, autoscroll=True, font=""):
+        self.box =Box(x, y, layout, size=size, absolutepos=absolutepos, autoscroll=autoscroll)
         self.rect = pygame.Rect(0, 0, size[0], size[1])
         self.x = x
         self.y = y
-        self.window = mainhandler.mainhandler.getwindow(main)
+        self.window = layout.window 
         self.color = color
         self.editable = editable
         self.textList = []
         self.maximuntextwidth = 0
+        self.font = Font(font).getfont()
         while (self.maximuntextwidth < self.rect.width):
             self.maximuntextwidth += FONTSIZE
         self.maximuntextheight = 0
         while (self.maximuntextheight < self.rect.height):
             self.maximuntextheight += FONTSIZE
-        self.font = mainhandler.mainhandler.getfont(main)
         self.absolutepos = absolutepos
         if not self.absolutepos:
             if x > 100 or y > 100:
@@ -180,7 +188,7 @@ class TextBox(Box):
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
         if not self.absolutepos:
-            self.rect = self.box.commons.setcorrectrectpos(self.rect, (self.x, self.y))
+            self.rect = self.box.commons.setrectpos(self.rect, (self.x, self.y))
         else:
             self.rect = self.rect.move(self.x, self.y)
         if self.editable:
@@ -221,13 +229,13 @@ class TextBox(Box):
 
 
 class BoxElement(Commons):
-    def __init__(self, imgPath, text, main, size=[150, 100], absolutepos=False):
-        self.font = mainhandler.mainhandler.getfont(main)
-        self.commons = Commons(main)
+    def __init__(self, imgPath, text, layout, size=[150, 100], absolutepos=False, font=""):
+        self.commons = Commons(layout)
+        self.font = Font(font).getfont()
         self.img = pygame.transform.scale(pygame.image.load(imgPath), size)
         self.text = text
         self.absolutepos = absolutepos
-        self.window = mainhandler.mainhandler.getwindow(main)
+        self.window = layout.window
         self.x = 0
         self.y = 0
         self.size = size
@@ -242,7 +250,7 @@ class BoxElement(Commons):
     def show(self):
         self.rect = self.rect.move(-self.rect.left, -self.rect.top)
         if not self.absolutepos:
-            self.rect = self.commons.setcorrectrectpos(self.rect, (self.x, self.y))
+            self.rect = self.commons.setrectpos(self.rect, (self.x, self.y))
         else:
             self.rect = self.rect.move(self.x, self.y)
         self.window.blit(self.img, self.rect)
@@ -251,13 +259,13 @@ class BoxElement(Commons):
 
 
 class ObjectListBox(Box):
-    def __init__(self, x, y, main, size=[500, 300], scrollable=True,  absolutepos=False):
-        self.box = Box(x, y, main, size=size, autoscroll=scrollable,  absolutepos=absolutepos)
+    def __init__(self, x, y, layout, size=[500, 300], scrollable=True,  absolutepos=False):
+        self.box = Box(x, y, layout, size=size, autoscroll=scrollable,  absolutepos=absolutepos)
         self.rect = self.box.rect 
         self.size = size
-        self.main = main
+        self.layout = layout
         self.objlist = []
-        self.x = x
+        self.x = x 
         self.y = y
         if scrollable : 
             self.scroller = self.box.scrooler
@@ -266,7 +274,8 @@ class ObjectListBox(Box):
 
 
     def addImg(self, imgPath, text):
-        self.objlist.append(BoxElement(imgPath, text, self.main, absolutepos=self.absolutepos))
+        self.objlist.append(BoxElement(imgPath, text, self.layout, absolutepos=self.absolutepos))
+        print(str(self.objlist) + " Current objlen = " + str(len(self.objlist)) + " current obj = " + str(self))
         
     def show(self):
         self.box.show()
@@ -281,3 +290,8 @@ class ObjectListBox(Box):
                     raise AttributeError
             if self.scrollable and height > self.size[1]:
                 self.scrooler.show()
+                
+    def getobjlist(self):
+        #debug
+        return self.objlist
+    

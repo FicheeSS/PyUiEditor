@@ -28,3 +28,17 @@ class Scrollbar:
 
     def show(self):
         pass
+
+class Font():
+    def __init__(self, font=""):
+        if not not font :
+            self.font = DEFAULTFONT
+        else :
+            f = pygame.font.match_font(font)
+            if f == None:
+                self.font = DEFAULTFONT
+            else : 
+                self.font = f
+            
+    def getfont(self):
+        return self.font
